@@ -1,11 +1,12 @@
-#define MAXSIZE 1024
+#define MAXSIZE 20
 #define TRUE 1
 #define FALSE 0
 #define OK 1
 #define ERROR 0
-#define OVERFLOW -1
-#define INCREMENTAL 30
+#define OVERFLOW -2
+#define INCREMENTAL 5
 #include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
 using namespace std;
 
@@ -35,6 +36,7 @@ Status InitStack(SqStack* S)
 	S->base=(SElemType*)malloc(MAXSIZE*sizeof(SElemType));
 	if(!S->base)
 	{
+		printf("error in memery application!");
 		exit(OVERFLOW);
 	}
 	S->top=S->base;
@@ -45,11 +47,11 @@ Status InitStack(SqStack* S)
 /*
  *destory the stack 
  */
-Status DestoryStack(SqStack *S)
+Status DestroyStack(SqStack *S)
 {
 	free(S->base);
 	S->base=NULL;
-	S->top=S->base;
+	S->top=NULL;//S->top=S->base can not be passed 
 	S->size=0;
 	return OK;
 }
@@ -137,27 +139,56 @@ Status Pop(SqStack *S,SElemType *e)
 	if(S->top==S->base)
 		return ERROR;
 
-	*e=*(S->top)
+	*e=*(S->top);
 	S->top-=sizeof(SElemType);
-	s->size--;
+	S->size--;
 	return OK;
 }
 
 void visit(SElemType e)
 {
-
+	printf("%d ",e);
 }
 
 Status TraverseStack(SqStack *S, void(*visit)(SElemType))
 {
+	SElemType a;
+	while(S->top!=S->base)
+	{
+		a=*(S->base);
+		visit(a);
+		S->base+=sizeof(SElemType);
+	}
+	return OK;
+
+
+}
+
+
+int Getlength(SqStack S)
+{
+	return (S.top -S.base)/sizeof(SElemType);
+
+}
+
+
+Status GetTop(SqStack *S,SElemType *e)
+{
+    if(S->top>S->base)
+    {
+		*e=*(S->top-sizeof(SElemType));
+		return OK;
+    }
+	return ERROR;
 
 
 }
 
 int main()
 {
+/*
 	SqStack *S1, *S2;
-	int a=InitStack(S1);
+	SElemType a=InitStack(S1);
 	if(a==OK)
 	{
 		for(int i=0;i!=S1->size;i++)
@@ -165,16 +196,44 @@ int main()
 			Push(S1,i);
 		
 		}
-	SElemType *a;
-	a=S1->top;
-	while(a!=S1->base)
-	{
-		cout<<(*a)<<" ";
-		a-=sizeof(SElemType);
+
+		TraverseStack(S1,visit); 
 
 	}
-
-	}
+	printf("push number failed!\n");
 	return ERROR;
+*/
+
+    SqStack S;
+    if (InitStack(&S))
+    {
+        SElemType e;
+        int i;
+
+        printf("init_success\n");
+
+        if (IsEmpty(S))
+        {
+            printf("Stack is empty\n");
+        }
+
+        for (i = 0; i < 10; i++)
+        {
+            Push(&S, i);
+        }
+
+        GetTop(&S, &e);
+        printf("The first element is %d\n", e);
+
+		printf("length is %d\n",Getlength(S));
+        Pop(&S, &e);
+        printf("Pop element is %d\n", e);
+
+        TraverseStack(&S,*visit);
+        if (DestroyStack(&S))
+        {
+            printf("\ndestroy_success\n");
+        }
+    }
 
 }
